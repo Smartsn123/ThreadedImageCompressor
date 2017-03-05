@@ -9,8 +9,8 @@ from random import choice
 from string import ascii_uppercase
 import threading
 
-AWS_KEY='AKIAJH42BFTSW5T66VKA'
-AWS_SECRET='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'
+AWS_KEY=''
+AWS_SECRET=''
 conn = None
 
 
