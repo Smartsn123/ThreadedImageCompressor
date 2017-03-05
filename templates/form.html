@@ -1,0 +1,442 @@
+<!doctype html>
+</html>
+<head>
+ <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+ <body>
+  <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+<script language="Javascript">
+function fileUpload(form, action_url, div_id) {
+    // Create the iframe...
+    var iframe = document.createElement("iframe");
+    iframe.setAttribute("id", "upload_iframe");
+    iframe.setAttribute("name", "upload_iframe");
+    iframe.setAttribute("width", "0");
+    iframe.setAttribute("height", "0");
+    iframe.setAttribute("border", "0");
+    iframe.setAttribute("style", "width: 0; height: 0; border: none;");
+
+    // Add to document...
+    form.parentNode.appendChild(iframe);
+    window.frames['upload_iframe'].name = "upload_iframe";
+
+    iframeId = document.getElementById("upload_iframe");
+
+    // Add event...
+    var eventHandler = function () {
+
+            if (iframeId.detachEvent) iframeId.detachEvent("onload", eventHandler);
+            else iframeId.removeEventListener("load", eventHandler, false);
+
+            // Message from server...
+            if (iframeId.contentDocument) {
+                content = iframeId.contentDocument.body.innerHTML;
+            } else if (iframeId.contentWindow) {
+                content = iframeId.contentWindow.document.body.innerHTML;
+            } else if (iframeId.document) {
+                content = iframeId.document.body.innerHTML;
+            }
+               
+              
+
+              /*
+              for(var i=0;i<content.length;i++){
+                $('#results').append( '<p><a link="'+content[i]+'">'+content[i]+'</a></p><br>');
+              }
+              */
+              
+           
+
+            // Del the iframe...
+            setTimeout('iframeId.parentNode.removeChild(iframeId)', 250);
+        }
+
+    if (iframeId.addEventListener) iframeId.addEventListener("load", eventHandler, true);
+    if (iframeId.attachEvent) iframeId.attachEvent("onload", eventHandler);
+
+    // Set properties of form...
+    var img_qual =  Math.max(10,$('#quality_inp').val()); 
+      var img_size =  Math.max(10,$('#size_inp').val()); 
+      
+    form.setAttribute("target", "upload_iframe");
+    form.setAttribute("action", action_url);
+    form.setAttribute("method", "POST");
+    form.setAttribute("enctype", "multipart/form-data");
+    form.setAttribute("encoding", "multipart/form-data");
+
+    var form_no = 0;
+    if(div_id=='upload_img')
+        form_no+=1;
+      $('#'+div_id).html('<div class="progress"><div class="indeterminate"></div></div>');
+    var data = new FormData($('form')[form_no]);
+    data.append( 'info', [img_qual,img_size]);
+    console.log(data);
+    $.ajax({
+       type: "POST",
+       url: action_url,
+       data: data,
+       success: function(content){
+         
+          console.log(content);
+              content=JSON.parse(content); 
+
+              console.log(content.type);
+              $('#'+div_id).html('');
+              $('#path_input_csv').val('');
+               $('#path_input_img').val('');
+              if(content.type =='input_url'){
+                   var tag_list=[]
+                  for(var i=0;i<content.data.length;i++){
+                      tag_list.push({'tag':content.data[i]});
+                   }
+                   $('.chips-initial').material_chip({data: tag_list,});
+              }
+              else if(content.type=='link'){
+                    $('table').append('<tr><td>Uploaded</td><td><a href="'+content.data+'">'+content.data+'</a></td></tr>');
+                    Materialize.toast("Conversion Was Successful !", 2000) ;
+              }
+              else{
+
+              }
+       },
+       error:function(){
+        $('#'+div_id).html('');
+        Materialize.toast("Error While Uploading", 2000) ;
+       },
+       processData: false,  // tell jQuery not to process the data
+       contentType: false   // tell jQuery not to set contentType
+    });
+    //form.setAttribute("data", JSON.stringify({ 'qual': img_qual,'size': img_size, 'file':formData} ) );
+
+    // Submit the form...
+    
+           
+    //form.submit();
+    
+}
+</script>
+
+<nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo center">THREADED JPEG / PNG IMAGE COMPRESSION</a>
+      <ul class="right hide-on-med-and-down">
+       
+        <li class="active"><a href="collapsible.html">Github</a></li>
+      </ul>
+      <ul class="left hide-on-med-and-down">
+       
+        <li class="active"><a href="collapsible.html">Sunny Singh</a></li>
+      </ul>
+    </div>
+  </nav>
+
+<div class="container">
+
+
+<div class = 'row'>
+   <div class="col s12 m4 l3">
+
+   <div class ='row'>
+     
+     <div class='card col s8'> 
+    <p class="range-field">
+      Quality %<input type="range" id="quality_inp" min="0" max="100" />
+    </p>
+      </div>
+   </div>
+
+
+    <div class='row'>
+      
+     <div class='card col s8'>  
+    <p class="range-field">
+      Size % <input type="range" id="size_inp" min="0" max="100" />
+    </p>
+    </div>
+   </div>
+
+  </div>
+
+
+
+
+
+
+
+<div  class="col s12 m8 l9">
+
+ <div class="card col s6">
+   <div class="card-content">
+   <form >
+     <h4>Upload an CSV File<h4>
+
+    <div class="file-field input-field">
+      <div class="btn">
+        <span>File</span>
+        <input type="file" name="datafile" >
+      </div>
+
+      <div class="file-path-wrapper">
+        <input  type="text"  class="file-path" id='path_input_csv'>
+      </div>
+
+      <input class='btn' type="button" value="upload" id='input_csv'
+        onclick="fileUpload(this.form,'/upload','upload_csv'); return false;" >
+
+      <div id="upload_csv">
+     </div>
+    </div>
+  </form>
+    </div>
+
+     <div class='row'>
+      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right"></i></span>
+      <p><a href="#"></a></p>
+     </div>  
+ </div>
+
+
+
+ <div class="card col s6">
+   <div class="card-content">
+   <form >
+     <h4>Upload Image File<h4>
+
+    <div class="file-field input-field">
+      <div class="btn">
+        <span>File</span>
+        <input type="file"  name="datafile" >
+      </div>
+
+      <div class="file-path-wrapper">
+        <input  type="text" class="file-path" id='path_input_img' >
+      </div>
+
+      <input class='waves-effect waves-light btn' type="button" value="convert"  id='input_img'
+        onclick="fileUpload(this.form,'/upload','upload_img'); return false;" >
+
+      <div id="upload_img">
+     </div>
+    </div>
+
+  </form>
+
+    </div>
+
+     <div class='row'>
+      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right"></i></span>
+      <p><a href="#"></a></p>
+     </div>  
+ </div>
+
+ </div>
+
+
+
+
+
+
+
+
+ 
+
+<div  class='row'>
+ 
+   <div class='row'>
+     <h4> Enter Urls separated by Enters<h4>
+  <div class="chips-initial"  id='chips'>
+  </div>
+    </div>
+
+    <input class="waves-effect waves-light btn teal" type='button' value='convert' onclick='sendchips()'>
+    <div class='row'>
+      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right"></i></span>
+      <p><a href="#"></a></p>
+    </div> 
+
+  <div id='progress'>
+  </div>
+</div>
+
+
+  </div>
+</div>
+
+
+
+<div class="row">
+    <div class ='card col s12' id='table_data'>
+      </div>
+    <div id='forcsv'>
+    <a class="waves-effect waves-light btn" id='download' onclick='getCSV()'>Download CSV</a>
+    <a href='#'id='Dlink'></a>
+    </div>
+         <table id='csv_table'>
+             <thead>
+          <tr>
+              <th data-field="id">Original</th>
+              <th data-field="name">Compressed</th>
+          </tr>
+        </thead>
+        <tbody id='table'>
+
+
+        </tbody >
+         </table>
+    
+  
+ </div> 
+</div>
+
+
+</body>
+
+<script>
+
+
+
+ $('.chips-initial').material_chip({
+    data: [],
+    placeholder: 'Enter a url',
+    secondaryPlaceholder: '+Url',
+  });
+
+var ajax_sent =0;
+
+ function sendchips(){
+
+    var chips = $('.chips').material_chip('data');
+    var urls=[];
+    for(var i =0;i<chips.length;i++){
+        urls.push(chips[i].tag);
+    }
+   var batch_size = 2;
+
+    var img_qual =  Math.max(10,$('#quality_inp').val()); 
+    var img_size =  Math.max(10,$('#size_inp').val()); 
+    console.log(img_qual);
+    console.log(img_size);
+
+
+  // main ajax request calling loop that ensures not more than 5 requests are sent to the server
+  for(var i=0;i<urls.length;){
+    $('#progress').html('<div class="progress active"><div class="indeterminate"></div></div>');
+    var data = urls.slice(i, Math.min( i+batch_size,urls.length) );
+    while(ajax_sent > 5 ){
+           var a = 1;
+    }
+    ajax_sent+=1;
+    $.ajax({
+  type: "POST",
+  url: '/convert',
+  data:JSON.stringify({'qual':img_qual,'size':img_size, 'urls':data}) ,
+  success: function(resp){
+      console.log(resp);
+         resp = JSON.parse(resp);
+         for(key in resp){
+            $('#table').append( '<tr><td><a href= " '+key+'">' +key+ '</a> </td> '+'<td><a href= " '+resp[key]+'">'+resp[key]+ '</a> </td></tr>');
+          $('.chips-initial').material_chip({
+    data: [],
+    placeholder: 'Enter a url',
+    secondaryPlaceholder: '+Url',
+  });
+          //Materialize.toast("Success", 2000) ;
+      }
+      
+      ajax_sent-=1;
+      if(ajax_sent ==0){
+        $('#progress').html('');
+      }
+
+  },
+  error:function(error){
+     // $('#preloader').removeClass('active');
+      //$('#progress').html('');
+     console.log("Error");
+     Materialize.toast("error", 2000) ;
+      $('.chips-initial').material_chip({
+    data: [],
+    placeholder: 'Enter a url',
+    secondaryPlaceholder: '+Url',
+  });
+       ajax_sent-=1;
+
+      if(ajax_sent ==0){
+        $('#progress').html('');
+      }
+   },
+  dataType: "text"
+   });
+
+    i+=batch_size;
+   }
+
+
+ }
+
+ function html2json() {
+   var json = '{';
+   var otArr = [];
+   var tbl2 = $('#csv_table tr').each(function(i) {        
+      x = $(this).children();
+      var itArr = [];
+      x.each(function() {
+         itArr.push('"' + $(this).text() + '"');
+      });
+      otArr.push('"' + i + '": [' + itArr.join(',') + ']');
+   })
+   json += otArr.join(",") + '}'
+
+   return json;
+}
+
+
+ function getCSV(){
+    var data = html2json();
+    $.ajax({
+  type: "POST",
+  url: '/getCSV',
+  data:data ,
+  success: function(csv){
+         csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+          console.log(csv);
+
+        if (window.navigator.msSaveBlob) { 
+       
+            window.navigator.msSaveOrOpenBlob(new Blob([csv], {type: "text/plain;charset=utf-8;"}), "converted.csv")
+        } 
+        else {
+             console.log('Here');
+             var d = new Date(); 
+             var n = d.getTime()
+            $('#Dlink').html(String(n)+"converted.csv");
+            $('#Dlink').attr({ 'download':String(n)+"converted.csv" , 'href': csvData, 'target': '_blank' }); 
+        }
+    },
+  error:function(error){
+   },
+  dataType: "text"
+   });
+ }
+
+
+
+
+
+
+
+ 
+
+</script>
+</html>
