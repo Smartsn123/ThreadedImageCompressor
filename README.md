@@ -18,6 +18,8 @@ Variable Ajax_sent is used to keep track of the ajax requests sent and sets limi
 
 
 #Running
+Add your aws s3 credentials in utilities.py file  before running
+
 To run do folllwing commands .
 
 chmod +x requirements.sh
