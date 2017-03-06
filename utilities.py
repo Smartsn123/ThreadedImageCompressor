@@ -7,12 +7,13 @@ from PIL import Image
 import urllib2, cStringIO
 from random import choice
 from string import ascii_uppercase
-import threading
+import threading,random,string
 
 AWS_KEY=''
 AWS_SECRET=''
 conn = None
-
+def randomword(length):
+   return ''.join(random.choice(string.lowercase) for i in range(length))
 
 
 
@@ -38,6 +39,19 @@ def upload_to_s3(myfile):
     except:
      myfile['status'] =0
      return "Failed to Convert!"
+
+def save_to_local(myfile):
+    #try:
+        img = Image.open(cStringIO.StringIO(myfile['content']))
+        dest ='static/'+randomword(10)+'_'+myfile['name']
+        img.save(dest)
+        myfile['status'] =1
+        return dest
+    #except:
+        myfile['status'] =0
+        print "Failed to Convert!--------------"
+
+
     
     
 

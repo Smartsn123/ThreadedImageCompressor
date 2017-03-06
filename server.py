@@ -1,13 +1,14 @@
 from flask import Flask, render_template,request, Response,jsonify,send_from_directory,make_response
-from werkzeug import secure_filename
 app = Flask(__name__)
+from werkzeug import secure_filename
 import urllib
 import urllib2
 import os,re,ast
 import json,os,boto
 from multiprocessing.pool import ThreadPool
-from utilities import ImageProcessor, upload_to_s3
-import random, string,pandas
+from utilities import ImageProcessor, upload_to_s3,save_to_local
+import random, string
+import socket
 from cStringIO import StringIO
 
 UPLOAD_FOLDER = os.getcwd()+'/uploads'
@@ -17,7 +18,6 @@ def randomword(length):
    return ''.join(random.choice(string.lowercase) for i in range(length))
 
 def IsImageUrl(inp ):
-
 	if  ( inp.split('.')[-1] in ['jpg','png','PNG','JPEG','JPG'] ) and ( inp.split(':')[0] in['http:','https']) :
 		return True
 	return False
@@ -37,6 +37,16 @@ def getUrlsFromFile(filename):
 				urls.append(wd)
 	print urls
 	return urls	
+
+def save_file(myfile,dest='local'):
+	if dest != 'local':
+		return upload_to_s3(myfile)
+	else:
+		url = save_to_local(myfile)
+		host_port =request.url.split('/')[2]
+		url = 'http://'+( host_port)+'/'+url
+		print url
+		return url
 
 
 @app.route('/')
@@ -73,10 +83,9 @@ def upload_file():
             		data['bucket_name'] = "mishacollins"
             		data['type'] = 'image/'+image._type
             		data['content'] = image._compressed
-            		base_url = upload_to_s3(data)
+            		base_url = save_file(data)
             		output=[]
-            		print base_url,data['name']
-            		output = ( '{}/{}'.format(str(base_url), str(data['name'] )  ) )
+            		print base_url
             		os.remove(dest_file)#delete the uploaded image
             		return json.dumps({'type':'link' ,'data':base_url})
 
@@ -108,7 +117,6 @@ def getCSV():
 
 @app.route('/convert', methods=['POST'])
 def submit():
-
 	print request.form
 	data = list(request.form)[0]
 	data = data.strip('[').strip(']')
@@ -129,8 +137,9 @@ def submit():
 			data['type'] = 'image/'+image._type
 			data['content'] = image._compressed
 			data['status'] =0
-			res = upload_to_s3(data)
+			res = save_file(data)
 			if data['status'] == 1:
+				print res
 				resp[url]=res
 			else:
 				resp[url]='Failed While uploading to S3'
@@ -140,10 +149,12 @@ def submit():
 
 @app.route('/static/<path:path>')
 def send_js(path):
-    return send_from_directory('static', path)
+	print '#####################'
+	print path
+	return send_from_directory('static', path)
 	
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1',port=8080,threaded=True)
+    app.run(debug=True, host='127.0.0.1',port=8090,threaded=True)
 
     

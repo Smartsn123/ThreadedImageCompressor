@@ -102,7 +102,7 @@ function fileUpload(form, action_url, div_id) {
                    $('.chips-initial').material_chip({data: tag_list,});
               }
               else if(content.type=='link'){
-                    $('table').append('<tr><td>Uploaded</td><td><a href="'+content.data+'">'+content.data+'</a></td></tr>');
+                    $('table').append('<tr><td>Uploaded</td><td><a  target="_blank" href="'+content.data+'">'+content.data+'</a></td></tr>');
                     Materialize.toast("Conversion Was Successful !", 2000) ;
               }
               else{
@@ -344,7 +344,7 @@ var ajax_sent =0;
       console.log(resp);
          resp = JSON.parse(resp);
          for(key in resp){
-            $('#table').append( '<tr><td><a href= " '+key+'">' +key+ '</a> </td> '+'<td><a href= " '+resp[key]+'">'+resp[key]+ '</a> </td></tr>');
+            $('#table').append( '<tr><td><a target="_blank"  href= " '+key+'">' +key+ '</a> </td> '+'<td><a target="_blank" href= " '+resp[key]+'">'+resp[key]+ '</a> </td></tr>');
           $('.chips-initial').material_chip({
     data: [],
     placeholder: 'Enter a url',
