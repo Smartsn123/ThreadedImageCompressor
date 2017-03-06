@@ -4,7 +4,7 @@ Application take input list of image urls , CSV with image URLS  or Image Itself
 NOTE : this application only compresses JPEG and PNG image files
 
 
-![Alt text](img.png?raw=true "sample")
+![Alt text](sample.png?raw=true "")
 
 
 # Introduction 
