@@ -27,7 +27,7 @@ function fileUpload(form, action_url, div_id) {
     iframe.setAttribute("style", "width: 0; height: 0; border: none;");
 
     // Add to document...
-    form.parentNode.appendChild(iframe);
+    $('#table_data').append(iframe);
     window.frames['upload_iframe'].name = "upload_iframe";
 
     iframeId = document.getElementById("upload_iframe");
