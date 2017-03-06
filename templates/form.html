@@ -77,7 +77,7 @@ function fileUpload(form, action_url, div_id) {
     var form_no = 0;
     if(div_id=='upload_img')
         form_no+=1;
-      $('#'+div_id).html('<div class="progress"><div class="indeterminate"></div></div>');
+      $('#progress').html('<div class="progress"><div class="indeterminate"></div></div>');
     var data = new FormData($('form')[form_no]);
     data.append( 'info', [img_qual,img_size]);
     console.log(data);
@@ -91,7 +91,7 @@ function fileUpload(form, action_url, div_id) {
               content=JSON.parse(content); 
 
               console.log(content.type);
-              $('#'+div_id).html('');
+              $('#progress').html('');
               //$('#path_input_csv').val('');
                //$('#path_input_img').val('');
 
