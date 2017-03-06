@@ -92,10 +92,11 @@ function fileUpload(form, action_url, div_id) {
 
               console.log(content.type);
               $('#'+div_id).html('');
-              $('#path_input_csv').val('');
-               $('#path_input_img').val('');
+              //$('#path_input_csv').val('');
+               //$('#path_input_img').val('');
+
               if(content.type =='input_url'){
-                   var tag_list=[]
+                   var tag_list=$('.chips-initial').material_chip('data');
                   for(var i=0;i<content.data.length;i++){
                       tag_list.push({'tag':content.data[i]});
                    }
