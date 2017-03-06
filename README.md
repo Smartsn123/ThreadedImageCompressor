@@ -4,6 +4,9 @@ Application take input list of image urls , CSV with image URLS  or Image Itself
 NOTE : this application only compresses JPEG and PNG image files
 
 
+![Alt text](img.png?raw=true "sample.png")
+
+
 # Introduction 
 
 This app is based on a Flask backend and does not store any data and converts the image and resturns images dynamically uploading them  to AWS.
@@ -28,3 +31,4 @@ sudo ./requirements.sh
 python server.py
 
 and goto : http://127.0.0.1:8080/
+
