@@ -10,12 +10,15 @@ from utilities import ImageProcessor, upload_to_s3,save_to_local
 import random, string
 import socket
 from cStringIO import StringIO
+import time
+
 
 UPLOAD_FOLDER = os.getcwd()+'/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def randomword(length):
    return ''.join(random.choice(string.lowercase) for i in range(length))
+
 
 def IsImageUrl(inp ):
 	if  ( inp.split('.')[-1] in ['jpg','png','PNG','JPEG','JPG'] ) and ( inp.split(':')[0] in['http:','https']) :
@@ -29,13 +32,13 @@ def getUrlsFromFile(filename):
 	lines = fl.read()
 	#print lines
 	lines = lines.split('\n')
-	print lines
+	#print lines
 	for ln in lines:
 		print ln
 		for wd in ln.split(','):
 			if IsImageUrl(wd ):
 				urls.append(wd)
-	print urls
+	#print urls
 	return urls	
 
 def save_file(myfile,dest='local'):
@@ -45,7 +48,6 @@ def save_file(myfile,dest='local'):
 		url = save_to_local(myfile)
 		host_port =request.url.split('/')[2]
 		url = 'http://'+( host_port)+'/'+url
-		print url
 		return url
 
 
@@ -86,8 +88,11 @@ def upload_file():
             		base_url = save_file(data)
             		output=[]
             		print base_url
-            		os.remove(dest_file)#delete the uploaded image
-            		return json.dumps({'type':'link' ,'data':base_url})
+            		host_port =request.url.split('/')[2]
+            		src_url = 'http://'+( host_port)+'/static/'+str(time.time()).split('.')[0]+'_'+filename
+            		src_size = str(image.getSize()[0])+','+str(image.getSize()[1])
+            		compressed_size = str(image.getCompressedSize()[0])+','+str(image.getCompressedSize()[1])
+            		return json.dumps({'type':'link' ,'data':base_url, 'source_data':src_url , 'src_size': src_size ,'resp_size':compressed_size})
 
         except:
             	    return Response("Error Uploading!", status=449, mimetype='application/json')
@@ -117,20 +122,28 @@ def getCSV():
 
 @app.route('/convert', methods=['POST'])
 def submit():
-	print request.form
+	#print request.form
 	data = list(request.form)[0]
 	data = data.strip('[').strip(']')
-	print data
+	#print data
 	data = ast.literal_eval(data)
-	print data
+	#print data
 	urls = data['urls']
 	QL = int(data['qual'])
 	SZ = float(data['size'])/100.0
-	resp ={}
+	print QL , SZ
+	print data
+	resp =[]
+	print urls
+	print len(urls)
 	for url in urls:
+		print url,'###############################'
 		image = ImageProcessor(url)
+		print "here----1"
 		conv_status = image.compress(QL, SZ)['status']
+		print "here----2"
 		if conv_status == 1:
+			print "here----"
 			data = {}
 			data['name']= randomword(12)+'.'+image._type
 			data['bucket_name'] = "mishacollins"
@@ -139,12 +152,13 @@ def submit():
 			data['status'] =0
 			res = save_file(data)
 			if data['status'] == 1:
-				print res
-				resp[url]=res
+				src_size = str(image.getSize()[0])+','+str(image.getSize()[1])
+				compressed_size = str(image.getCompressedSize()[0])+','+str(image.getCompressedSize()[1])
+				resp.append( ({'type':'link' ,'data':res, 'source_data':url , 'src_size': src_size ,'resp_size':compressed_size}))
 			else:
-				resp[url]='Failed While uploading to S3'
-		else:
-			resp[url]='Invalid Image File/ Failed While Compressing'
+                           resp.append( ({'type':'link' ,'data':'Failed while saving', 'source_data':url ,'src_size': '0,0', 'resp_size':'0,0'}) )
+                else:
+                   resp.append({'type':'link' ,'data':'Failed while saving', 'source_data':url , 'src_size': '0,0' ,'resp_size':'0,0'})
 	return Response(json.dumps(resp) ,status=200, mimetype='application/json')
 
 @app.route('/static/<path:path>')

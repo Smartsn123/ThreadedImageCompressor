@@ -8,6 +8,7 @@ import urllib2, cStringIO
 from random import choice
 from string import ascii_uppercase
 import threading,random,string
+import time
 
 AWS_KEY=''
 AWS_SECRET=''
@@ -43,7 +44,7 @@ def upload_to_s3(myfile):
 def save_to_local(myfile):
     #try:
         img = Image.open(cStringIO.StringIO(myfile['content']))
-        dest ='static/'+randomword(10)+'_'+myfile['name']
+        dest ='static/'+str(time.time()).split('.')[0]+'_'+myfile['name']
         img.save(dest)
         myfile['status'] =1
         return dest
@@ -64,7 +65,9 @@ class ImageProcessor:
         if url != None:
             self._url = url
             try:
+                print 'opening Image'
                 site = urllib2.urlopen(url)
+                print 'openedImage'
             except:
                 site=None
                 pass
@@ -88,7 +91,20 @@ class ImageProcessor:
           except:
                 pass
 
-           
+    def getSize(self):
+        #print 'getSize'
+        if '_image' in self.__dict__:
+            img = Image.open(self._image)
+            return img.size[0],img.size[1]
+        return 0,0
+
+    def getCompressedSize(self):
+        #print 'getSize'
+        if '_compressed' in self.__dict__:
+            img = Image.open(cStringIO.StringIO(self._compressed))
+            return img.size[0],img.size[1]
+        return 0,0
+
                 
     def set_from_file(self, filename):
         self._image = cStringIO.StringIO( open(filename,'r').read())

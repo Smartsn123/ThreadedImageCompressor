@@ -103,7 +103,8 @@ function fileUpload(form, action_url, div_id) {
                    $('.chips-initial').material_chip({data: tag_list,});
               }
               else if(content.type=='link'){
-                    $('table').append('<tr><td>Uploaded</td><td><a  target="_blank" href="'+content.data+'">'+content.data+'</a></td></tr>');
+                var resp = content;
+    $('#table').append('<tr><td><a target="_blank"  href= " '+resp.source_data+'">'+resp.source_data+ '</a> </td><td>'+'('+resp.src_size+')</td>' +'<td><a target="_blank" href= " '+resp.data+'">'+resp.data+'</a></td>'+ '<td>('+resp.resp_size+')'+'</td></tr>');
                     Materialize.toast("Conversion Was Successful !", 2000) ;
               }
               else{
@@ -285,8 +286,10 @@ function fileUpload(form, action_url, div_id) {
          <table id='csv_table'>
              <thead>
           <tr>
-              <th data-field="id">Original</th>
+              <th data-field="id ">Original</th>
+              <th data-field="src_size">Source Size</th>
               <th data-field="name">Compressed</th>
+              <th data-field="new_size">New Size</th>
           </tr>
         </thead>
         <tbody id='table'>
@@ -344,15 +347,17 @@ var ajax_sent =0;
   success: function(resp){
       console.log(resp);
          resp = JSON.parse(resp);
-         for(key in resp){
-            $('#table').append( '<tr><td><a target="_blank"  href= " '+key+'">' +key+ '</a> </td> '+'<td><a target="_blank" href= " '+resp[key]+'">'+resp[key]+ '</a> </td></tr>');
+      for(var i =0;i<resp.length;i++){
+            $('#table').append('<tr><td><a target="_blank"  href= " '+resp[i].source_data+'">' +
+              resp[i].source_data+ '</a> </td><td>'+'('+resp[i].src_size+')</td>' +'<td><a target="_blank" href= " '+resp[i].data+'">'+resp[i].data+'</a></td>'+ '('+resp[i].resp_size+')'+'</td></tr>');
+      }
           $('.chips-initial').material_chip({
     data: [],
     placeholder: 'Enter a url',
     secondaryPlaceholder: '+Url',
   });
           //Materialize.toast("Success", 2000) ;
-      }
+      
       
       ajax_sent-=1;
       if(ajax_sent ==0){
