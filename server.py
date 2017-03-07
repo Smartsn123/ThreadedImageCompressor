@@ -92,8 +92,8 @@ def upload_file():
             		print base_url
             		host_port =request.url.split('/')[2]
             		src_url = 'http://'+( host_port)+'/uploads/'+filename
-            		src_size = str(image.getSize()[0])+' x '+str(image.getSize()[1])
-            		compressed_size = str(image.getCompressedSize()[0])+' x '+str(image.getCompressedSize()[1])
+            		src_size = str(  float( image.getSize())/1000.0   )+'KB'
+            		compressed_size = str( float(image.getCompressedSize())/1000.0 )+'KB'
             		return json.dumps({'type':'link' ,'data':base_url, 'source_data':src_url , 'src_size': src_size ,'resp_size':compressed_size})
 
         except:
@@ -154,8 +154,8 @@ def submit():
 			data['status'] =0
 			res = save_file(data)
 			if data['status'] == 1:
-				src_size = str(image.getSize()[0])+' x '+str(image.getSize()[1])
-				compressed_size = str(image.getCompressedSize()[0])+' x '+str(image.getCompressedSize()[1])
+				src_size = str(  float( image.getSize())/1000.0   )+'KB'
+				compressed_size = str( float(image.getCompressedSize())/1000.0 )+'KB'
 				resp.append( ({'type':'link' ,'data':res, 'source_data':url , 'src_size': src_size ,'resp_size':compressed_size}))
 			else:
                            resp.append( ({'type':'link' ,'data':'Failed while saving', 'source_data':url ,'src_size': '0 x 0', 'resp_size':'0 x 0'}) )
