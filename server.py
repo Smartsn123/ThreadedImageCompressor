@@ -66,7 +66,9 @@ def upload_file():
 	print File
 	if File:
 		filename = secure_filename(File.filename)
+		filename=str(time.time()).split('.')[0]+'_'+filename
 		dest_file =os.path.join(app.config['UPLOAD_FOLDER'],filename)
+
         try:
             	File.save(dest_file)
             	if dest_file.split('.')[-1] in ['csv' ,'xls']:
@@ -89,7 +91,7 @@ def upload_file():
             		output=[]
             		print base_url
             		host_port =request.url.split('/')[2]
-            		src_url = 'http://'+( host_port)+'/static/'+str(time.time()).split('.')[0]+'_'+filename
+            		src_url = 'http://'+( host_port)+'/uploads/'+filename
             		src_size = str(image.getSize()[0])+','+str(image.getSize()[1])
             		compressed_size = str(image.getCompressedSize()[0])+','+str(image.getCompressedSize()[1])
             		return json.dumps({'type':'link' ,'data':base_url, 'source_data':src_url , 'src_size': src_size ,'resp_size':compressed_size})
@@ -166,9 +168,13 @@ def send_js(path):
 	print '#####################'
 	print path
 	return send_from_directory('static', path)
+
+@app.route('/uploads/<path:path>')
+def send_files(path):
+	return send_from_directory('uploads', path)
 	
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0',port=8090,threaded=True)
+    app.run(debug=True, host='127.0.0.1',port=8090,threaded=True)
 
     
