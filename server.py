@@ -155,7 +155,7 @@ def submit():
 			res = save_file(data)
 			if data['status'] == 1:
 				src_size = str(image.getSize()[0])+' x '+str(image.getSize()[1])
-				compressed_size = str(image.getCompressedSize()[0])+','+str(image.getCompressedSize()[1])
+				compressed_size = str(image.getCompressedSize()[0])+' x '+str(image.getCompressedSize()[1])
 				resp.append( ({'type':'link' ,'data':res, 'source_data':url , 'src_size': src_size ,'resp_size':compressed_size}))
 			else:
                            resp.append( ({'type':'link' ,'data':'Failed while saving', 'source_data':url ,'src_size': '0 x 0', 'resp_size':'0 x 0'}) )
