@@ -6,4 +6,4 @@ pip install Pillow
 pip install boto
 pip install requests
 pip install urllib2
-pip instal cStringIO
+pip install cStringIO
