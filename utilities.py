@@ -94,16 +94,14 @@ class ImageProcessor:
     def getSize(self):
         #print 'getSize'
         if '_image' in self.__dict__:
-            img = Image.open(self._image)
-            return img.size[0],img.size[1]
-        return 0,0
+            return len(self._image.getvalue())
+        return 0
 
     def getCompressedSize(self):
         #print 'getSize'
         if '_compressed' in self.__dict__:
-            img = Image.open(cStringIO.StringIO(self._compressed))
-            return img.size[0],img.size[1]
-        return 0,0
+            return len(self._compressed)
+        return 0
 
                 
     def set_from_file(self, filename):
