@@ -1,9 +1,9 @@
 #!/bin/bash
 sudo apt-get update
 sudo apt-get install python-pip
-pip install flask
-pip install Pillow
-pip install boto
-pip install requests
-pip install urllib2
-pip install cStringIO
+sudo apt-get install python-flask
+sudo apt-get install python-Pillow
+sudo apt-get install python-boto
+sudo apt-get install python-requests
+sudo apt-get install python-urllib2
+sudo apt-get install python-cStringIO
