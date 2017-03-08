@@ -21,7 +21,7 @@ def randomword(length):
 
 
 def IsImageUrl(inp ):
-	if  ( inp.split('.')[-1] in ['jpg','png','PNG','JPEG','JPG'] ) and ( inp.split(':')[0] in['http:','https']) :
+	if  ( inp.split('.')[-1] in ['jpg','png','PNG','JPEG','JPG'] ) and ( inp.split(':')[0] in['http','https']) :
 		return True
 	return False
 
@@ -34,8 +34,9 @@ def getUrlsFromFile(filename):
 	lines = lines.split('\n')
 	#print lines
 	for ln in lines:
-		print ln
+		#print ln
 		for wd in ln.split(','):
+			print wd
 			if IsImageUrl(wd ):
 				urls.append(wd)
 	#print urls
@@ -158,9 +159,12 @@ def submit():
 				compressed_size = str( float(image.getCompressedSize())/1000.0 )+'KB'
 				resp.append( ({'type':'link' ,'data':res, 'source_data':url , 'src_size': src_size ,'resp_size':compressed_size}))
 			else:
-                           resp.append( ({'type':'link' ,'data':'Failed while saving', 'source_data':url ,'src_size': '0 x 0', 'resp_size':'0 x 0'}) )
+                           resp.append( ({'type':'link' ,'data':'Failed while Loading Image', 'source_data':url ,'src_size': '0 x 0', 'resp_size':'0 x 0'}) )
                 else:
-                   resp.append({'type':'link' ,'data':'Failed while saving', 'source_data':url , 'src_size': '0 x 0' ,'resp_size':'0 x 0'})
+                	msg ="Failed while saving"
+                	if image._url == 'failed':
+                		msg ="failed while loading from source"
+                	resp.append({'type':'link' ,'data':msg, 'source_data':url , 'src_size': '0 x 0' ,'resp_size':'0 x 0'})
 	return Response(json.dumps(resp) ,status=200, mimetype='application/json')
 
 @app.route('/static/<path:path>')

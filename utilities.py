@@ -42,13 +42,13 @@ def upload_to_s3(myfile):
      return "Failed to Convert!"
 
 def save_to_local(myfile):
-    #try:
+    try:
         img = Image.open(cStringIO.StringIO(myfile['content']))
         dest ='static/'+str(time.time()).split('.')[0]+'_'+myfile['name']
         img.save(dest)
         myfile['status'] =1
         return dest
-    #except:
+    except:
         myfile['status'] =0
         print "Failed to Convert!--------------"
 
@@ -70,7 +70,8 @@ class ImageProcessor:
                 print 'openedImage'
             except:
                 site=None
-                pass
+                print "failed to open image"
+                self._url = 'failed'
         if site!= None and site.code != 200:
                 print "Invalid URL!"
         else:
@@ -149,10 +150,13 @@ class ImageProcessor:
                 img.save(tmp, self._type, quality=ql,optimize=True)
                 tmp.seek(0)
                 self._compressed = tmp.getvalue()
+                print "Sucessful compression"
                 return {'status':1 , 'message':'success'}
             except:
+                print "unable to resize"
                 return { 'status':0, 'message':"Unable Resie image , try different scale/size"}
         else:
+            print "Image is not set"
             return { 'status':0, 'message':"Image not Set"}
 
                 
