@@ -100,7 +100,8 @@ function fileUpload(form, action_url, div_id) {
                   for(var i=0;i<content.data.length;i++){
                       tag_list.push({'tag':content.data[i]});
                    }
-                   $('.chips-initial').material_chip({data: tag_list,});
+                   $('.chips-initial').material_chip({data: tag_list,placeholder: 'Enter a url',
+    secondaryPlaceholder: '+Url',});
               }
               else if(content.type=='link'){
                 var resp = content;
@@ -315,8 +316,6 @@ function fileUpload(form, action_url, div_id) {
     secondaryPlaceholder: '+Url',
   });
 
-var ajax_sent =0;
-
  function sendchips(){
 
     var chips = $('.chips').material_chip('data');
@@ -324,70 +323,71 @@ var ajax_sent =0;
     for(var i =0;i<chips.length;i++){
         urls.push(chips[i].tag);
     }
-   var batch_size = 2;
+   var batch_size = 3;
 
     var img_qual =  Math.max(10,$('#quality_inp').val()); 
     var img_size =  Math.max(10,$('#size_inp').val()); 
     console.log(img_qual);
     console.log(img_size);
-
-
-  // main ajax request calling loop that ensures not more than 5 requests are sent to the server
-  for(var i=0;i<urls.length;){
-    $('#progress').html('<div class="progress active"><div class="indeterminate"></div></div>');
-    var data = urls.slice(i, Math.min( i+batch_size,urls.length) );
-    while(ajax_sent > 5 ){
-           var a = 1;
-    }
-    ajax_sent+=1;
-    $.ajax({
-  type: "POST",
-  url: '/convert',
-  data:JSON.stringify({'qual':img_qual,'size':img_size, 'urls':data}) ,
-  success: function(resp){
-      console.log(resp);
-         resp = JSON.parse(resp);
-      for(var i =0;i<resp.length;i++){
-            $('#table').append('<tr><td><a target="_blank"  href= " '+resp[i].source_data+'">'+resp[i].source_data+ '</a> </td><td>'+'('+resp[i].src_size+')</td>' +'<td><a target="_blank" href= " '+resp[i].data+'">'+resp[i].data+'</a></td>'+ '<td>('+resp[i].resp_size+')'+'</td></tr>');
-      }
-          $('.chips-initial').material_chip({
+    $('.chips-initial').material_chip({
     data: [],
     placeholder: 'Enter a url',
     secondaryPlaceholder: '+Url',
   });
-          //Materialize.toast("Success", 2000) ;
-      
-      
-      ajax_sent-=1;
-      if(ajax_sent ==0){
-        $('#progress').html('');
-      }
-
-  },
-  error:function(error){
-     // $('#preloader').removeClass('active');
-      //$('#progress').html('');
-     console.log("Error");
-     Materialize.toast("error", 2000) ;
-      $('.chips-initial').material_chip({
-    data: [],
-    placeholder: 'Enter a url',
-    secondaryPlaceholder: '+Url',
-  });
-       ajax_sent-=1;
-
-      if(ajax_sent ==0){
-        $('#progress').html('');
-      }
-   },
-  dataType: "text"
-   });
-
-    i+=batch_size;
-   }
-
-
+   
+    $('#progress').html('<div class="progress"><div class="indeterminate"></div></div>');
+    rec_ajax(urls,img_qual,img_size,batch_size,0);
+    
+   
  }
+
+
+ function rec_ajax(urls,iq,isz,batch_size,depth){
+    
+
+    var data = Array();
+    var newUrls=Array();
+    for(var i=0;i<urls.length;i++){
+        if(i<batch_size){
+          data.push(urls[i]);
+        }
+        else{
+          newUrls.push(urls[i]);
+        }
+    }
+    console.log(data.length);
+    //check if maximum no of ajax calls exceeded
+    if(depth>8 ){
+       Materialize.toast("Too many Images Limit is. 20  Images!", 2000) ;
+    }
+    else if(data.length>0){
+         $.ajax({
+                  type: "POST",
+                  url: '/convert',
+                  data:JSON.stringify({'qual':iq,'size':isz, 'urls':data}) ,
+                  success: function(resp){
+                            console.log(resp);
+                            resp = JSON.parse(resp);
+                            for(var i =0;i<resp.length;i++){
+                                  $('#table').append('<tr><td><a target="_blank"  href= " '+resp[i].source_data+'">'+resp[i].source_data+ '</a> </td><td>'+'('+resp[i].src_size+')</td>' +'<td><a target="_blank" href= " '+resp[i].data+'">'+resp[i].data+'</a></td>'+ '<td>('+resp[i].resp_size+')'+'</td></tr>');
+                              }                              
+                            rec_ajax(newUrls,iq,isz,batch_size,depth+1);
+                            },
+                  error:function(error){
+                            console.log("Error");
+                            Materialize.toast("Error Occured!", 2000) ;
+                            for(var i =0;i<data.length;i++){
+                                  $('#table').append('<tr><td><a target="_blank"  href= " '+data[i]+'">'+data[i]+ '</a> </td><td>'+'(0'+')</td>' +'<td><a target="_blank" href= " '+'">'+'Error'+'</a></td>'+ '<td>('+'Error'+')'+'</td></tr>');
+                              }  
+                            rec_ajax(newUrls,iq,isz,batch_size,depth+1);
+                            },
+                  dataType: "text"
+                      });
+          }
+      else{
+        $('#progress').html('');
+      }
+    }
 
  function html2json() {
    var json = '{';

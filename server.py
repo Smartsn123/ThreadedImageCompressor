@@ -20,10 +20,17 @@ def randomword(length):
    return ''.join(random.choice(string.lowercase) for i in range(length))
 
 
-def IsImageUrl(inp ):
-	if  ( inp.split('.')[-1] in ['jpg','png','PNG','JPEG','JPG'] ) and ( inp.split(':')[0] in['http','https']) :
-		return True
-	return False
+def IsImageUrl(inp):
+	try:
+		start= inp.split(':')[0]
+		end = inp.split('.')[-1]
+		print start,end
+		if  (start in ['https','http'])  and ( end in ['jpg','jpeg','JPG','JPEG','png','PNG']):
+			return True
+		else:
+			return False
+	except:
+		return False
 
 
 def getUrlsFromFile(filename):
@@ -32,14 +39,17 @@ def getUrlsFromFile(filename):
 	lines = fl.read()
 	#print lines
 	lines = lines.split('\n')
-	#print lines
+	print lines
 	for ln in lines:
+		#print "########"
 		#print ln
 		for wd in ln.split(','):
-			print wd
-			if IsImageUrl(wd ):
-				urls.append(wd)
-	#print urls
+			#print wd+'-----'
+			clean_wd = wd.strip('\n').strip('\r').strip('\t')
+			#print clean_wd
+			if IsImageUrl(clean_wd) :
+				urls.append(clean_wd)
+	print urls
 	return urls	
 
 def save_file(myfile,dest='local'):
@@ -70,7 +80,7 @@ def upload_file():
 		filename=str(time.time()).split('.')[0]+'_'+filename
 		dest_file =os.path.join(app.config['UPLOAD_FOLDER'],filename)
 
-        try:
+        #try:
             	File.save(dest_file)
             	if dest_file.split('.')[-1] in ['csv' ,'xls']:
             		urls = getUrlsFromFile(dest_file)#real all urls from csv file
@@ -97,8 +107,8 @@ def upload_file():
             		compressed_size = str( float(image.getCompressedSize())/1000.0 )+'KB'
             		return json.dumps({'type':'link' ,'data':base_url, 'source_data':src_url , 'src_size': src_size ,'resp_size':compressed_size})
 
-        except:
-            	    return Response("Error Uploading!", status=449, mimetype='application/json')
+        #except:
+            	    #return Response("Error Uploading!", status=449, mimetype='application/json')
 
 @app.route("/getCSV", methods=['POST'])
 def getCSV():
